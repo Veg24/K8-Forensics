@@ -1511,3 +1511,179 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Student Badge in Hero Banner */
+.hero-student-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid var(--accent-light);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-deep);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="dark"] .hero-student-badge {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: var(--accent-dark);
+}
+
+.student-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--accent-medium);
+}
+
+.student-separator {
+  opacity: 0.4;
+  font-weight: 400;
+}
+
+.student-nim {
+  opacity: 0.9;
+}
+
+/* Interactive Verification Box in Bonus Section */
+.interactive-verification-box {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.verifier-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.verifier-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color-light);
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.verifier-file-name {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.verifier-current-status {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.verifier-current-status.valid {
+  background-color: var(--badge-valid-bg);
+  color: var(--badge-valid-text);
+  border: 1px solid var(--badge-valid-border);
+}
+
+.verifier-current-status.invalid {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+[data-theme="dark"] .verifier-current-status.invalid {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-toggle-status {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-toggle-status:hover {
+  background: var(--bg-accent-hover);
+  border-color: var(--accent-light);
+  color: var(--accent-deep);
+}
+
+.btn-verify-all {
+  background: linear-gradient(135deg, var(--accent-medium) 0%, var(--accent-dark) 100%);
+  color: var(--text-white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.btn-verify-all:hover {
+  background: linear-gradient(135deg, var(--accent-dark) 0%, var(--accent-deep) 100%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-verify-all svg {
+  width: 18px;
+  height: 18px;
+}
+
+.console-output {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #38bdf8;
+  height: 120px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.console-line-info {
+  color: #94a3b8;
+}
+
+.console-line-success {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.console-line-warning {
+  color: #f43f5e;
+  font-weight: 600;
+}
+
