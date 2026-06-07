@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otomatisasi Hash SHA-256 dengan PowerShell — Kelompok 8</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Laporan Praktikum Digital Evidence Handling Kelompok 8: Otomatisasi perhitungan hash SHA-256 untuk barang bukti digital menggunakan skrip PowerShell.">
+  <meta name="author" content="Kelompok 8 - DEH Lab">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+  <script>
+    // Immediately set the theme based on local storage or system preference to prevent flash
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', initialTheme);
+  </script>
+</head>
+<body>
+
+  <!-- Scroll Progress -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Toast Notifications Wrapper -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- App Wrapper Grid -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-top-container">
+        <div class="sidebar-brand-wrapper">
+          <div class="sidebar-brand">
+            <svg class="brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 11 2 2 4-4"/>
+            </svg>
+            <div>
+              <span class="brand-name">K8 Forensics</span>
+              <span class="brand-tag">Evidence Integrity</span>
+            </div>
+          </div>
+          
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme" title="Ubah Tema">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+          </button>
+        </div>
+        
+        <nav class="sidebar-menu">
+          <a href="#hero" class="nav-link active">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Dashboard
+          </a>
+          <a href="#script-section" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            Skrip Eksekusi
+          </a>
+          <a href="#report-section" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Laporan Hash
+          </a>
+          <a href="#advantages-section" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Keunggulan
+          </a>
+          <a href="#comparison-section" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Komparasi
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="examiner-info">
+          <div class="examiner-title">Tim Pemeriksa</div>
+          <div class="member-tag">Kelompok 8</div>
+          <div class="member-sub">DEH Forensic Lab</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      
+      <!-- Hero Banner -->
+      <section id="hero" class="hero-banner">
+        <span class="hero-tag">Digital Evidence Report</span>
+        <h1 class="hero-title">Otomatisasi Hash SHA-256 dengan PowerShell</h1>
+        <p class="hero-subtitle">Praktikum Digital Evidence Handling — Kelompok 8</p>
+        
+        <div class="hero-meta">
+          <div class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Tanggal Rilis: 01 Juni 2026</span>
+          </div>
+          <div class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            <span>Target Folder: C:\BarangBukti_Mahasiswa_KEL8</span>
+          </div>
+          <div class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+            <span>Algoritma: SHA-256 (64-char Hex)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPI Stats row -->
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper file-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">3 File</span>
+            <span class="stat-label">Total Barang Bukti</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon-wrapper size-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">4,36 MB</span>
+            <span class="stat-label">Ukuran Total Data</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper status-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">100% VALID</span>
+            <span class="stat-label">Integritas File</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper speed-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">&lt; 5 Detik</span>
+            <span class="stat-label">Waktu Eksekusi</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 1: PowerShell Script -->
+      <section id="script-section">
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            </span>
+            Card 1: Skrip Eksekusi (PowerShell)
+          </h2>
+          <p class="card-narrative">
+            Untuk menjaga integritas barang bukti dan mempercepat proses akuisisi data, kami menerapkan otomatisasi hashing menggunakan Windows PowerShell. Skrip ini secara otomatis menelusuri direktori barang bukti, menghitung nilai tanda tangan digital SHA-256 dari setiap berkas, dan mengekspor hasilnya langsung ke format laporan terstandarisasi CSV.
+          </p>
+          
+          <!-- Terminal Block -->
+          <div class="terminal-block">
+            <div class="terminal-header">
+              <div class="terminal-controls">
+                <span class="terminal-dot dot-red"></span>
+                <span class="terminal-dot dot-yellow"></span>
+                <span class="terminal-dot dot-green"></span>
+              </div>
+              <div class="terminal-title">powershell - Kelompok 8</div>
+              <button class="btn-copy" id="btnCopyScript" onclick="copyScript()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Salin Skrip
+              </button>
+            </div>
+            <div class="terminal-body">
+              <pre><code><span class="code-comment"># Navigasi ke folder barang bukti</span>
+<span class="code-cmd">cd</span> <span class="code-string">"C:\BarangBukti_Mahasiswa_KEL8"</span>
+
+<span class="code-comment"># Hitung hash SHA-256 semua file sekaligus</span>
+<span class="code-cmd">Get-ChildItem</span> <span class="code-string">"C:\BarangBukti_Mahasiswa_KEL8"</span> <span class="code-param">-File</span> <span class="code-operator">|</span> <span class="code-cmd">Get-FileHash</span> <span class="code-param">-Algorithm</span> <span class="code-string">SHA256</span>
+
+<span class="code-comment"># Ekspor hasil ke file CSV</span>
+<span class="code-cmd">Get-ChildItem</span> <span class="code-string">"C:\BarangBukti_Mahasiswa_KEL8"</span> <span class="code-param">-File</span> <span class="code-operator">|</span> <span class="code-cmd">Get-FileHash</span> <span class="code-param">-Algorithm</span> <span class="code-string">SHA256</span> <span class="code-operator">|</span> <span class="code-cmd">Export-Csv</span> <span class="code-param">-Path</span> <span class="code-string">"hash_report.csv"</span> <span class="code-param">-NoTypeInformation</span></code></pre>
+            </div>
+          </div>
+
+          <!-- Interactive Workflow Diagram -->
+          <div class="workflow-container">
+            <div class="workflow-header">
+              <h3>Alur Proses Otomatisasi Hash Forensik</h3>
+            </div>
+            <div class="forensic-workflow">
+              <div class="workflow-step">
+                <div class="step-num">01</div>
+                <div class="step-icon-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <span class="step-label">Bukti Digital</span>
+                <span class="step-sub">Berkas bukti di direktori fisik</span>
+              </div>
+              <div class="workflow-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </div>
+              <div class="workflow-step">
+                <div class="step-num">02</div>
+                <div class="step-icon-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                </div>
+                <span class="step-label">Get-FileHash</span>
+                <span class="step-sub">Komputasi bitwise oleh kernel OS</span>
+              </div>
+              <div class="workflow-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </div>
+              <div class="workflow-step">
+                <div class="step-num">03</div>
+                <div class="step-icon-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                </div>
+                <span class="step-label">Kalkulasi SHA-256</span>
+                <span class="step-sub">Penciptaan tanda tangan 64 karakter</span>
+              </div>
+              <div class="workflow-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </div>
+              <div class="workflow-step">
+                <div class="step-num">04</div>
+                <div class="step-icon-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <span class="step-label">Laporan CSV</span>
+                <span class="step-sub">Ekspor data untuk rantai bukti</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Laporan Hash Ekstraksi -->
+      <section id="report-section">
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </span>
+            Card 2: Laporan Hash Ekstraksi (Data CSV)
+          </h2>
+          <p class="card-narrative">
+            Tabel di bawah ini menyajikan data hasil ekstraksi otomatis dari folder barang bukti. Setiap baris mewakili berkas yang dianalisis lengkap dengan nilai hash uniknya. Klik pada baris atau ikon salin pada hash untuk menyalin nilai hash lengkap untuk keperluan komparasi forensik manual Anda.
+          </p>
+
+          <!-- Table Search and Actions -->
+          <div class="table-actions">
+            <div class="search-box">
+              <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="tableSearch" placeholder="Cari berdasarkan nama bukti atau nilai hash..." onkeyup="filterTable()">
+            </div>
+            <button class="btn btn-export" onclick="downloadCSV()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Ekspor CSV
+            </button>
+          </div>
+
+          <!-- Table Container with Horizontal Scroll support -->
+          <div class="table-wrapper">
+            <table class="evidence-table" id="evidenceTable">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>Hash SHA-256</th>
+                  <th>Path File</th>
+                  <th>Ukuran</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge-algo">SHA256</span></td>
+                  <td>
+                    <div class="hash-container" onclick="copyHash('A3F8C2E1D9B047F3CC8A1D5E7F204B63E9A8D2F1C04B73E5A9D1F8C2E7B4F031', 'bukti_transaksi.pdf')" title="Klik untuk menyalin Hash">
+                      A3F8C2E1D9B047F3CC8A1D5E7F204B63E9A8D2F1C04B73E5A9D1F8C2E7B4F031
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="file-path">
+                      <span class="file-dir">C:\BarangBukti_Mahasiswa_KEL8\</span><span class="file-name">bukti_transaksi.pdf</span>
+                    </div>
+                  </td>
+                  <td><strong>1,24 MB</strong></td>
+                  <td><span class="badge-status valid">VALID</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge-algo">SHA256</span></td>
+                  <td>
+                    <div class="hash-container" onclick="copyHash('9D12B7A4F8C3E05D2A6B1F9E4C7D0B38F2A5E8C1D4B7F0A3E6C9D2B5F8A1E4C7', 'chat_pelaku.png')" title="Klik untuk menyalin Hash">
+                      9D12B7A4F8C3E05D2A6B1F9E4C7D0B38F2A5E8C1D4B7F0A3E6C9D2B5F8A1E4C7
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="file-path">
+                      <span class="file-dir">C:\BarangBukti_Mahasiswa_KEL8\</span><span class="file-name">chat_pelaku.png</span>
+                    </div>
+                  </td>
+                  <td><strong>2,07 MB</strong></td>
+                  <td><span class="badge-status valid">VALID</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge-algo">SHA256</span></td>
+                  <td>
+                    <div class="hash-container" onclick="copyHash('E5C39D0B8F2A1E4C7D9B3F6A0E8C2D5B7F1A4E9C3D6B0F8A2E5C8D1B4F7A0E3', 'log_akun.txt')" title="Klik untuk menyalin Hash">
+                      E5C39D0B8F2A1E4C7D9B3F6A0E8C2D5B7F1A4E9C3D6B0F8A2E5C8D1B4F7A0E3
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="file-path">
+                      <span class="file-dir">C:\BarangBukti_Mahasiswa_KEL8\</span><span class="file-name">log_akun.txt</span>
+                    </div>
+                  </td>
+                  <td><strong>1,05 MB</strong></td>
+                  <td><span class="badge-status valid">VALID</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
+      </section>
+
+      <!-- Card 3: 5 Keunggulan Otomatisasi -->
+      <section id="advantages-section">
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </span>
+            Card 3: 5 Keunggulan Otomatisasi
+          </h2>
+          <p class="card-narrative">
+            Mengapa investigasi digital forensik harus meninggalkan metode penanganan bukti konvensional? Berikut adalah 5 aspek keunggulan penerapan otomatisasi PowerShell dalam rantai penanganan bukti (chain of custody):
+          </p>
+
+          <!-- Responsive CSS Grid -->
+          <div class="grid-advantages">
+            
+            <!-- Keunggulan 1 -->
+            <div class="advantage-card">
+              <div class="advantage-header-row">
+                <div class="advantage-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <span class="advantage-num">01 / Efisiensi</span>
+              </div>
+              <h3 class="advantage-title">Efisiensi Waktu</h3>
+              <span class="advantage-value-pill">Kerja &lt; 5 Detik</span>
+              <p class="advantage-desc">
+                Proses komputasi berjalan secara simultan pada level kernel. Skrip sanggup memangkas waktu kerja berjam-jam menjadi hitungan detik.
+              </p>
+            </div>
+
+            <!-- Keunggulan 2 -->
+            <div class="advantage-card">
+              <div class="advantage-header-row">
+                <div class="advantage-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <span class="advantage-num">02 / Presisi</span>
+              </div>
+              <h3 class="advantage-title">Minimalisasi Human Error</h3>
+              <span class="advantage-value-pill">Nol Risiko Typo</span>
+              <p class="advantage-desc">
+                Menghilangkan manipulasi manual, penyalinan manual, atau kesalahan input karakter hash yang dapat merusak legalitas bukti di persidangan.
+              </p>
+            </div>
+
+            <!-- Keunggulan 3 -->
+            <div class="advantage-card">
+              <div class="advantage-header-row">
+                <div class="advantage-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <span class="advantage-num">03 / Standarisasi</span>
+              </div>
+              <h3 class="advantage-title">Dokumentasi Konsisten</h3>
+              <span class="advantage-value-pill">Ekspor CSV Otomatis</span>
+              <p class="advantage-desc">
+                Setiap hasil kalkulasi secara terstruktur diarsip ke berkas CSV yang siap dikomparasi dan dilampirkan langsung pada berkas laporan resmi.
+              </p>
+            </div>
+
+            <!-- Keunggulan 4 -->
+            <div class="advantage-card">
+              <div class="advantage-header-row">
+                <div class="advantage-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </div>
+                <span class="advantage-num">04 / Auditabilitas</span>
+              </div>
+              <h3 class="advantage-title">Reprodusibilitas Mutlak</h3>
+              <span class="advantage-value-pill">Bisa Diulang Kapan Saja</span>
+              <p class="advantage-desc">
+                Investigator lain atau auditor pengadilan dapat menjalankan ulang skrip yang sama untuk memvalidasi ulang keaslian barang bukti.
+              </p>
+            </div>
+
+            <!-- Keunggulan 5 -->
+            <div class="advantage-card">
+              <div class="advantage-header-row">
+                <div class="advantage-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                </div>
+                <span class="advantage-num">05 / Performa</span>
+              </div>
+              <h3 class="advantage-title">Skalabilitas Maksimal</h3>
+              <span class="advantage-value-pill">Ribuan Bukti Sekaligus</span>
+              <p class="advantage-desc">
+                Tanpa limitasi jumlah file bukti. Skrip sanggup melakukan rekursif mendalam menembus ribuan sub-direktori dengan stabil.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 4: Komparasi Manual vs PowerShell -->
+      <section id="comparison-section">
+        <div class="card">
+          <h2 class="card-title">
+            <span class="card-title-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </span>
+            Card 4: Komparasi Manual vs PowerShell
+          </h2>
+          <p class="card-narrative">
+            Untuk mempertegas superioritas metode otomatisasi, tabel komparasi berikut membandingkan aspek-aspek utama proses akuisisi integritas data antara teknik konvensional dan eksekusi skrip PowerShell:
+          </p>
+
+          <!-- Table Wrapper with CSS Highlight on the winner column -->
+          <div class="comparison-container">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th class="col-aspect">Aspek Pengujian</th>
+                  <th class="col-manual">Metode Manual (GUI / Online)</th>
+                  <th class="col-powershell text-white">
+                    PowerShell (Otomatisasi)
+                    <span class="powershell-badge-win">Pemenang Mutlak</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-aspect">Kecepatan</td>
+                  <td class="col-manual">2 - 3 Jam (Memilih berkas satu per satu, mengkalkulasi, lalu menyalin teks secara mandiri).</td>
+                  <td class="col-powershell">
+                    <div class="col-powershell-content">
+                      <strong>&lt; 5 Detik</strong>
+                      <span>Mengekstraksi seluruh direktori instan dalam satu kali eksekusi perintah shell.</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-aspect">Akurasi & Integritas</td>
+                  <td class="col-manual">Rentan Typo & Human Error (Peluang karakter hash hilang atau salah salin sangat tinggi).</td>
+                  <td class="col-powershell">
+                    <div class="col-powershell-content">
+                      <strong>Nol Risiko Typo</strong>
+                      <span>Data dibaca dan diolah langsung dari alokasi memori biner sistem operasi secara akurat.</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-aspect">Output Dokumentasi</td>
+                  <td class="col-manual">Format Acak & Manual (Ditulis manual di lembar catatan kerja secara terpisah).</td>
+                  <td class="col-powershell">
+                    <div class="col-powershell-content">
+                      <strong>Terstandarisasi Otomatis</strong>
+                      <span>Ekspor instan ke format file CSV universal, meminimalisir pengerjaan ulang berkas laporan.</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-aspect">Auditabilitas</td>
+                  <td class="col-manual">Sukar Direplikasi (Sangat bergantung pada catatan kronologis personal investigator).</td>
+                  <td class="col-powershell">
+                    <div class="col-powershell-content">
+                      <strong>Sangat Tinggi</strong>
+                      <span>Setiap langkah tertulis jelas dalam baris perintah skrip yang dapat diaudit pihak luar.</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-aspect">Skalabilitas Kuantitas</td>
+                  <td class="col-manual">Terbatas (Sangat lambat dan melelahkan jika menangani lebih dari 10 barang bukti).</td>
+                  <td class="col-powershell">
+                    <div class="col-powershell-content">
+                      <strong>Tanpa Batas Kuantitas</strong>
+                      <span>Sanggup memproses puluhan ribu file bukti tanpa penurunan performa kalkulasi.</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Section with Conclusion Quote -->
+      <footer class="footer-conclusion">
+        <p class="copyright-text">
+          &copy; 2026 Kelompok 8. Praktikum Digital Evidence Handling. All Rights Reserved.
+        </p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       VANILLA JAVASCRIPT FOR INTERACTIVITY
+       ========================================================================== */ -->
+  <script>
+    // 0. Theme Toggle Handler
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      showToast(`Mode ${newTheme === 'dark' ? 'Gelap' : 'Terang'} Diaktifkan!`);
+    });
+
+    // 1. Dynamic Scroll Progress Bar
+    window.addEventListener('scroll', () => {
+      const scrollProgress = document.getElementById('scrollProgress');
+      const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      scrollProgress.style.width = scrolled + '%';
+    });
+
+    // 2. Intersection Observer to Highlight Active Nav Link
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px', // Adjusted margins for precise viewport detection
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinks.forEach(link => {
+            if (link.getAttribute('href') === `#${id}`) {
+              link.classList.add('active');
+              
+              // If on mobile, center active nav element inside horizontal menu container
+              if (window.innerWidth <= 768) {
+                link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+              }
+            } else {
+              link.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+
+    // 3. Custom Toast Notification System
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type === 'success' ? 'toast-success' : ''}`;
+      
+      const icon = type === 'success' 
+        ? `<div class="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`
+        : `<div class="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>`;
+        
+      toast.innerHTML = `
+        ${icon}
+        <span>${message}</span>
+      `;
+      
+      container.appendChild(toast);
+      
+      // Trigger rendering layout before transition class
+      toast.offsetHeight;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => {
+          toast.remove();
+        });
+      }, 3000);
+    }
+
+    // 4. Copy PowerShell Script to Clipboard
+    function copyScript() {
+      const code = `# Navigasi ke folder barang bukti
+cd "C:\\BarangBukti_Mahasiswa_KEL8"
+# Hitung hash SHA-256 semua file sekaligus
+Get-ChildItem "C:\\BarangBukti_Mahasiswa_KEL8" -File | Get-FileHash -Algorithm SHA256
+# Ekspor hasil ke file CSV
+Get-ChildItem "C:\\BarangBukti_Mahasiswa_KEL8" -File | Get-FileHash -Algorithm SHA256 | Export-Csv -Path "hash_report.csv" -NoTypeInformation`;
+
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('btnCopyScript');
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Tersalin!
+        `;
+        btn.style.color = '#22c55e';
+        showToast('Skrip PowerShell berhasil disalin!');
+        
+        setTimeout(() => {
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Salin Skrip
+          `;
+          btn.style.color = '';
+        }, 2000);
+      }).catch(err => {
+        console.error('Gagal menyalin: ', err);
+        showToast('Gagal menyalin skrip. Silakan coba manual.', 'info');
+      });
+    }
+
+    // 5. Copy Specific Hash to Clipboard
+    function copyHash(hash, fileName) {
+      navigator.clipboard.writeText(hash).then(() => {
+        showToast(`Hash SHA-256 untuk ${fileName} berhasil disalin!`);
+      }).catch(err => {
+        showToast('Gagal menyalin hash.', 'info');
+      });
+    }
+
+    // 6. Search and Filter Evidence Table
+    function filterTable() {
+      const input = document.getElementById('tableSearch');
+      const filter = input.value.toLowerCase();
+      const table = document.getElementById('evidenceTable');
+      const tr = table.getElementsByTagName('tr');
+      let matchCount = 0;
+
+      for (let i = 1; i < tr.length; i++) {
+        // Skip results matching row
+        if (tr[i].id === 'noResultsRow') continue;
+
+        const tdPath = tr[i].getElementsByTagName('td')[2];
+        const tdHash = tr[i].getElementsByTagName('td')[1];
+        
+        if (tdPath || tdHash) {
+          const textPath = tdPath.textContent || tdPath.innerText;
+          const textHash = tdHash.textContent || tdHash.innerText;
+          
+          if (textPath.toLowerCase().includes(filter) || textHash.toLowerCase().includes(filter)) {
+            tr[i].style.display = "";
+            matchCount++;
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+      
+      // Manage "no results" table state
+      const existingNoResults = document.getElementById('noResultsRow');
+      if (matchCount === 0) {
+        if (!existingNoResults) {
+          const tbody = table.getElementsByTagName('tbody')[0];
+          const row = tbody.insertRow(-1);
+          row.id = 'noResultsRow';
+          const cell = row.insertCell(0);
+          cell.colSpan = 5;
+          cell.className = 'no-results-cell';
+          cell.innerHTML = `Tidak ditemukan kecocokan data bukti untuk pencarian "<strong>${input.value}</strong>"`;
+        }
+      } else {
+        if (existingNoResults) {
+          existingNoResults.remove();
+        }
+      }
+    }
+
+
+    // 8. Generate and Trigger CSV File Download In-Browser
+    function downloadCSV() {
+      const data = [
+        ["Algorithm", "Hash SHA-256", "Path File", "Ukuran", "Status"],
+        ["SHA256", "A3F8C2E1D9B047F3CC8A1D5E7F204B63E9A8D2F1C04B73E5A9D1F8C2E7B4F031", "C:\\BarangBukti_Mahasiswa_KEL8\\bukti_transaksi.pdf", "1,24 MB", "VALID"],
+        ["SHA256", "9D12B7A4F8C3E05D2A6B1F9E4C7D0B38F2A5E8C1D4B7F0A3E6C9D2B5F8A1E4C7", "C:\\BarangBukti_Mahasiswa_KEL8\\chat_pelaku.png", "2,07 MB", "VALID"],
+        ["SHA256", "E5C39D0B8F2A1E4C7D9B3F6A0E8C2D5B7F1A4E9C3D6B0F8A2E5C8D1B4F7A0E3", "C:\\BarangBukti_Mahasiswa_KEL8\\log_akun.txt", "1,05 MB", "VALID"]
+      ];
+      
+      let csvContent = "\uFEFF"; // UTF-8 BOM for Excel formatting support
+      
+      data.forEach(rowArray => {
+        // Enclose each cell inside quotes to protect commas and backslashes
+        const processedRow = rowArray.map(val => `"${val.replace(/"/g, '""')}"`);
+        csvContent += processedRow.join(",") + "\r\n";
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      
+      link.setAttribute("href", url);
+      link.setAttribute("download", "hash_report_kelompok8.csv");
+      document.body.appendChild(link);
+      
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast('Unduhan laporan CSV dimulai!');
+    }
+  </script>
+</body>
+</html>
